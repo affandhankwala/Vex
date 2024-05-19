@@ -5,17 +5,35 @@ import createTable
 
 def takePositions():
     name = 'EURUSD_2023-2024.csv'                                               # File to grab data form csv format
-    openActual, openPredicted = PredictNext.predict_next(name, 'open')          # Retrieve all open predictions versus actual data
-    closeActual, closePredicted = PredictNext.predict_next(name, 'close')       # Retrieve all close predicctions versus actual data
-    highActual, highPredicted = PredictNext.predict_next(name, 'high')          # Retreive all high predictions versus actual data
-    lowActual, lowPredicted = PredictNext.predict_next(name, 'low')             # Retrieve all low predictions versus actual data
-    
+
+
+    actual_O, ytrain_O, next1_O, next2_O, next3_O, mse_O = PredictNext.predict_next(name, 'open')
+    actual_C, ytrain_C, next1_C, next2_C, next3_C, mse_C = PredictNext.predict_next(name, 'close')
+    actual_H, ytrain_H, next1_H, next2_H, next3_H, mse_H = PredictNext.predict_next(name, 'high')
+    actual_L, ytrain_L, next1_L, next2_L, next3_L, mse_L = PredictNext.predict_next(name, 'low')
+
     # List of positions to take
     positions = []
 
     # All arrays are same size
 
     # Iterate through every wick
+    for i in range(len(actual_O)):
+        # Only enter on uptrend or downtrend for now
+        # Uptrend if the next three candles close higher than previous
+        if next3_C > next2_C and next2_C > next1_C:
+            # Uptrend confirmed
+
+        # Downtrend if the next three candles close lower than previous
+        if next3_C < next2_C and next2_C < next1_C:
+
+
+
+
+
+
+
+
     for i in range(len(openPredicted) - 1):
         # Decide on whether to buy or sell based on difference between current close and next prediction high/low
         currentClose = closeActual[i]
