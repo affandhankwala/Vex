@@ -2,6 +2,8 @@ import numpy as np
 import math
 import PredictNext
 import createTable
+import ATR
+from position import Position
 
 def takePositions():
     name = 'EURUSD_2023-2024.csv'                                               # File to grab data form csv format
@@ -15,18 +17,44 @@ def takePositions():
     # List of positions to take
     positions = []
 
+    # Position Object
+    myP = Position()
+
     # All arrays are same size
 
+    # Boolean to hold whether in trade or not
+    inTrade = False
     # Iterate through every wick
     for i in range(len(actual_O)):
         # Only enter on uptrend or downtrend for now
         # Uptrend if the next three candles close higher than previous
-        if next3_C > next2_C and next2_C > next1_C:
+        if inTrade:
+            # Get SL if SL not assigned
+            if myP.getSL() < -1:
+                myP.setSL(ATR.getATR(actual_L, actual_H, i))         # Set SL to ATR for now
+
+                
+                
+            return -1 # If in trade, evaluate if SL or TP hit
+        
+        elif next3_C > next2_C and next2_C > next1_C:
             # Uptrend confirmed
+            myP.enterTrade(actual_O[i], 'BUY')
+            inTrade = True
 
         # Downtrend if the next three candles close lower than previous
-        if next3_C < next2_C and next2_C < next1_C:
+        elif next3_C < next2_C and next2_C < next1_C:
+            # Downtrend confirmed
+            myP.enterTrade(actual_O[i], 'SELL')
+            inTrade = True
+        else:
+            # For now, dont enter a trade
+            continue
+        positions.append(myP.getDirection)
 
+        # Enter at start of current candle
+        myP.setEntryPrice(actual_O[i])
+        myP.setCurrentPrice(actual_O[i])
 
 
 
