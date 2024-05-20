@@ -24,28 +24,49 @@ def takePositions():
 
     # Boolean to hold whether in trade or not
     inTrade = False
+
+    # Account information
+    totalAccount = 25000                    # Start with $25,000 initially
+    slRisk = 0.01                           # Risk a max of 1% per trade
     # Iterate through every wick
     for i in range(len(actual_O)):
+
+        # Calculate the position size
+        # Max loss = account * slRisk
+        # Movement per pip = SL/max loss
+        # Units = Movement * 10,000
+        # Lot = Movement / 10
+        # SL = 100,000 Units = $10 per pip
+        # miniL = 10,000 Units = $1 per pip
+        # microL = 1,000 Units = $0.10 per pip
+
+        lotSize = (totalAccount * 0.01) / 10
+
         # Only enter on uptrend or downtrend for now
         # Uptrend if the next three candles close higher than previous
         if inTrade:
             # Get SL if SL not assigned
             if myP.getSL() < -1:
                 myP.setSL(ATR.getATR(actual_L, actual_H, i))         # Set SL to ATR for now
+            
+            # Update the current price
+            myP.setCurrentPrice(actual_O[i])
 
-                
-                
+            # Check if the trade has been stopped out
+            if myP.hitSL():
+                handleLoss(myP)
+
             return -1 # If in trade, evaluate if SL or TP hit
-        
+                
         elif next3_C > next2_C and next2_C > next1_C:
             # Uptrend confirmed
-            myP.enterTrade(actual_O[i], 'BUY')
+            myP.enterTrade(actual_O[i], 'BUY', lotSize)
             inTrade = True
 
         # Downtrend if the next three candles close lower than previous
         elif next3_C < next2_C and next2_C < next1_C:
             # Downtrend confirmed
-            myP.enterTrade(actual_O[i], 'SELL')
+            myP.enterTrade(actual_O[i], 'SELL', lotSize)
             inTrade = True
         else:
             # For now, dont enter a trade

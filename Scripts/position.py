@@ -7,6 +7,7 @@ class Position:
         self.TP = 0
         self.entryPrice = 0
         self.currentPrice = 0
+        self.lot = 0
     
     # Getters
     def getDirection(self):
@@ -28,14 +29,18 @@ class Position:
     def setTP (self, TP):
         self.TP = TP
 
-    def setEntryPrice(self, EP):
-        self.entryPrice = EP
+    def setCurrentPrice(self, price):
+        self.currentPricePrice = price
+
+    def setLot(self, lot):
+        self.value = lot
 
     # Methods
-    def enterTrade(self, price, direction):
+    def enterTrade(self, price, direction, lotSize):
         self.entryPrice = price
         self.currentPrice = price
         self.direction = direction
+        self.lot = lotSize
 
     def updatePrice(self, price):
         self.currentPrice = price
