@@ -18,6 +18,10 @@ class Position:
     
     def getTP(self):
         return self.TP
+
+    def getPosValue(self):
+        # Value is equal to lotsize * 10 * SL pips
+        return self.lot * 10 * (math.abs(self.entryPrice - self.SL))
     
     # Setters
     def setDirection (self, direction):
@@ -33,7 +37,7 @@ class Position:
         self.currentPricePrice = price
 
     def setLot(self, lot):
-        self.value = lot
+        self.lot = lot
 
     # Methods
     def enterTrade(self, price, direction, lotSize):
@@ -55,6 +59,9 @@ class Position:
             return self.currentPrice - self.entryPrice >= target
         else:
             return self.entryPrice - self.currentPrice >= target
+    
+   
+
     
 
 

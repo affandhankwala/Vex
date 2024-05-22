@@ -36,11 +36,12 @@ def takePositions():
         # Movement per pip = SL/max loss
         # Units = Movement * 10,000
         # Lot = Movement / 10
-        # SL = 100,000 Units = $10 per pip
-        # miniL = 10,000 Units = $1 per pip
-        # microL = 1,000 Units = $0.10 per pip
-
-        lotSize = (totalAccount * 0.01) / 10
+        # SL = 100,000 Units = $10 per pip = 1 Lot
+        # miniL = 10,000 Units = $1 per pip = 0.1 Lot
+        # microL = 1,000 Units = $0.10 per pip = 0.01 Lot
+        
+        risk = 0.01
+        lotSize = (totalAccount * risk / actual_O[i]) / 10      # Gather lotSize as 1% of account in USD initially
 
         # Only enter on uptrend or downtrend for now
         # Uptrend if the next three candles close higher than previous
@@ -54,18 +55,28 @@ def takePositions():
 
             # Check if the trade has been stopped out
             if myP.hitSL():
-                handleLoss(myP)
+                handleLoss(myP)                 # TODO: MAKE FUNCTION
+
+            elif myP.hitTP():
+                handleProfit(myP)               # TODO: MAKE FUNCTION
+            
+            else: 
+                continueTrade()                 # TODO: CONTINUE TRADE
 
             return -1 # If in trade, evaluate if SL or TP hit
                 
         elif next3_C > next2_C and next2_C > next1_C:
             # Uptrend confirmed
+            # Set lotSize
+            lotSize = (totalAccount * risk / actual_O[i]) / 10 
             myP.enterTrade(actual_O[i], 'BUY', lotSize)
             inTrade = True
 
         # Downtrend if the next three candles close lower than previous
         elif next3_C < next2_C and next2_C < next1_C:
             # Downtrend confirmed
+            # Set lotSize
+            lotSize = (totalAccount * risk / actual_O[i]) / 10 
             myP.enterTrade(actual_O[i], 'SELL', lotSize)
             inTrade = True
         else:
