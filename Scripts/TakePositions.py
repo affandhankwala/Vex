@@ -85,8 +85,8 @@ def takePositions():
         else:
             # For now, dont enter a trade
             continue
-    print("Account: " +(str)(totalAccount))
-    print("Win rate: "+generateWinRate.winRate(positions))
+    print("Ending Account: " +(str)(totalAccount))
+    generateWinRate.winRate(positions)
     return positions
 
 
