@@ -56,11 +56,10 @@ def takePositions():
             
             # Check if the trade has been stopped out
             if myP.hitSL(actual_L[i], actual_H[i]):
-                totalAccount -= myP.getPosValue()
+                myP.invertValue()
                 myP.setResult('LOSS')
 
             elif myP.hitTP(actual_L[i], actual_H[i], rr):
-                totalAccount += myP.getPosValue()
                 myP.setResult('WIN')
             
             else: 
@@ -69,7 +68,8 @@ def takePositions():
                 continue            # If not stopped out, keep evaluating position
 
             # Add the position into the array
-            positions.append(myP)           ## PROBLEM: myP keeps getting updated within positions array (reference error)
+            totalAccount += myP.getPosValue()
+            positions.append(myP)           
             inTrade = False
             
             # New position object
@@ -91,7 +91,9 @@ def takePositions():
             # For now, dont enter a trade
             continue
     print("Ending Account: " +(str)(totalAccount))
-    generateWinRate.winRate(positions)
+
+    generateTable.makeTable(name, positions, 
+                  generateWinRate.metrics(positions, getInitialAccount()))
     
     return positions
 
@@ -194,12 +196,12 @@ def evaluatePositions(positions, openActual, closeActual, lowActual, highActual,
                 positions, revenueList, accountList, successes, leverage, SL)
                 
 
-def generateTable(openActual, openPredicted, closeActual, closePredicted,
-                highActual, highPredicted, lowActual, lowPredicted,
-                positions, revenueList, accountList, successes, leverage, SL):
-    createTable.createTable(openActual, openPredicted, closeActual, closePredicted,
-                highActual, highPredicted, lowActual, lowPredicted,
-                positions, revenueList, accountList, successes, leverage, SL)
+# def generateTable(openActual, openPredicted, closeActual, closePredicted,
+#                 highActual, highPredicted, lowActual, lowPredicted,
+#                 positions, revenueList, accountList, successes, leverage, SL):
+#     createTable.createTable(openActual, openPredicted, closeActual, closePredicted,
+#                 highActual, highPredicted, lowActual, lowPredicted,
+#                 positions, revenueList, accountList, successes, leverage, SL)
     
 
 def printPositions(positions):

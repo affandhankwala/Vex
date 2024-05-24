@@ -10,6 +10,7 @@ class Position:
         self.lot = 0
         self.result = ''
         self.rr = 1
+        self.posValue = 0
     
     # Getters
     def getDirection(self):
@@ -25,8 +26,7 @@ class Position:
         return self.lot
 
     def getPosValue(self):
-        # Value is equal to lotsize * 10 * SL pips
-        return self.lot * 10 * self.SL * 1000    
+        return self.posValue
     
     def getResult(self):
         return self.result
@@ -74,6 +74,9 @@ class Position:
         self.SL = SL
         self.rr = rr
 
+        # Value is equal to lotsize * 10 * SL pips
+        self.posValue = self.lot * 10 * self.SL * 1000   
+
     def updatePrice(self, price):
         self.currentPrice = price
 
@@ -95,6 +98,8 @@ class Position:
     def setResult(self, result):
         self.result = result
 
+    def invertValue(self):
+        self.posValue = self.posValue * -1
     
 
 
