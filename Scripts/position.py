@@ -8,6 +8,7 @@ class Position:
         self.entryPrice = 0
         self.currentPrice = 0
         self.lot = 0
+        self.result = ''
     
     # Getters
     def getDirection(self):
@@ -21,7 +22,10 @@ class Position:
 
     def getPosValue(self):
         # Value is equal to lotsize * 10 * SL pips
-        return self.lot * 10 * (math.abs(self.entryPrice - self.SL))
+        return self.lot * 10 * self.SL * 1000    
+    
+    def getResult(self):
+        return self.result
     
     # Setters
     def setDirection (self, direction):
@@ -34,33 +38,39 @@ class Position:
         self.TP = TP
 
     def setCurrentPrice(self, price):
-        self.currentPricePrice = price
+        self.currentPrice = price
 
     def setLot(self, lot):
         self.lot = lot
 
     # Methods
-    def enterTrade(self, price, direction, lotSize):
+    def enterTrade(self, price, direction, lotSize, SL):
         self.entryPrice = price
         self.currentPrice = price
         self.direction = direction
         self.lot = lotSize
+        self.SL = SL
 
     def updatePrice(self, price):
         self.currentPrice = price
 
-    def hitSL(self):
+    def hitSL(self, low, high):
         # Determine if SL hit in trade
-        return math.abs (self.currentPrice - self.entryPrice) >= self.SL
-    
-    def hitTP(self, target):
-        # Determine if TP Hit in BUY
         if self.direction == 'BUY':
-            return self.currentPrice - self.entryPrice >= target
+            return self.entryPrice - low >= self.SL
         else:
-            return self.entryPrice - self.currentPrice >= target
+            return high - self.entryPrice >= self.SL
     
-   
+    def hitTP(self, low, high, rr):
+        # Determine if TP Hit within the dayu
+        # RR 1:1
+        if self.direction == 'BUY':
+            return high - self.entryPrice >= self.SL * rr
+        else:
+            return self.entryPrice - low >= self.SL * rr
+    
+    def setResult(self, result):
+        self.result = result
 
     
 

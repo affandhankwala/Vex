@@ -4,6 +4,7 @@ import PredictNext
 import createTable
 import ATR
 from position import Position
+import generateWinRate
 
 def takePositions():
     name = 'EURUSD_2023-2024.csv'                                               # File to grab data form csv format
@@ -24,12 +25,13 @@ def takePositions():
 
     # Boolean to hold whether in trade or not
     inTrade = False
-
+   
     # Account information
     totalAccount = 25000                    # Start with $25,000 initially
     slRisk = 0.01                           # Risk a max of 1% per trade
+    rr = 1
     # Iterate through every wick
-    for i in range(len(actual_O)):
+    for i in range(len(actual_O) - 3):
 
         # Calculate the position size
         # Max loss = account * slRisk
@@ -39,75 +41,70 @@ def takePositions():
         # SL = 100,000 Units = $10 per pip = 1 Lot
         # miniL = 10,000 Units = $1 per pip = 0.1 Lot
         # microL = 1,000 Units = $0.10 per pip = 0.01 Lot
-        
-        risk = 0.01
-        lotSize = (totalAccount * risk / actual_O[i]) / 10      # Gather lotSize as 1% of account in USD initially
+        SL = ATR.getATR(actual_L, actual_H, i, 15)          # Set SL to ATR for now
+
+        lotSize = (totalAccount * slRisk / (SL * 1000)) / 10   
 
         # Only enter on uptrend or downtrend for now
         # Uptrend if the next three candles close higher than previous
         if inTrade:
-            # Get SL if SL not assigned
-            if myP.getSL() < -1:
-                myP.setSL(ATR.getATR(actual_L, actual_H, i))         # Set SL to ATR for now
             
-            # Update the current price
-            myP.setCurrentPrice(actual_O[i])
-
             # Check if the trade has been stopped out
-            if myP.hitSL():
-                handleLoss(myP)                 # TODO: MAKE FUNCTION
+            if myP.hitSL(actual_L[i], actual_H[i]):
+                totalAccount -= myP.getPosValue()
+                myP.setResult('LOSS')
 
-            elif myP.hitTP():
-                handleProfit(myP)               # TODO: MAKE FUNCTION
+            elif myP.hitTP(actual_L[i], actual_H[i], rr):
+                totalAccount += myP.getPosValue()
+                myP.setResult('WIN')
             
             else: 
-                continueTrade()                 # TODO: CONTINUE TRADE
+                # Update the current price
+                myP.setCurrentPrice(actual_O[i])
+                continue            # If not stopped out, keep evaluating position
 
-            return -1 # If in trade, evaluate if SL or TP hit
+            # Add the position into the array
+            positions.append(myP)           ## PROBLEM: myP keeps getting updated within positions array (reference error)
+            inTrade = False
+            
+            # New position object
+            myP = Position()
                 
-        elif next3_C > next2_C and next2_C > next1_C:
+        elif next3_C[i] > next2_C[i] and next2_C[i] > next1_C[i]:
             # Uptrend confirmed
             # Set lotSize
-            lotSize = (totalAccount * risk / actual_O[i]) / 10 
-            myP.enterTrade(actual_O[i], 'BUY', lotSize)
+            myP.enterTrade(actual_O[i], 'BUY', lotSize, SL)
             inTrade = True
 
         # Downtrend if the next three candles close lower than previous
-        elif next3_C < next2_C and next2_C < next1_C:
+        elif next3_C[i] < next2_C[i] and next2_C[i] < next1_C[i]:
             # Downtrend confirmed
             # Set lotSize
-            lotSize = (totalAccount * risk / actual_O[i]) / 10 
-            myP.enterTrade(actual_O[i], 'SELL', lotSize)
+            myP.enterTrade(actual_O[i], 'SELL', lotSize, SL)
             inTrade = True
         else:
             # For now, dont enter a trade
             continue
-        positions.append(myP.getDirection)
-
-        # Enter at start of current candle
-        myP.setEntryPrice(actual_O[i])
-        myP.setCurrentPrice(actual_O[i])
+    print("Account: " +(str)(totalAccount))
+    print("Win rate: "+generateWinRate.winRate(positions))
+    return positions
 
 
 
-
-
-
-
-    for i in range(len(openPredicted) - 1):
-        # Decide on whether to buy or sell based on difference between current close and next prediction high/low
-        currentClose = closeActual[i]
-        #if (i >= len(openActual) - 1): break
-        tomorrowHighPrediction = highPredicted[i + 1]
-        tomorrowLowPrediction = lowPredicted[i + 1]
-        position = ''
-        if(tomorrowHighPrediction - currentClose > currentClose - tomorrowLowPrediction):
-            position = 'BUY'
-        else: position = 'SELL'
-        positions.append(position)
-    evaluatePositions(positions, openActual, closeActual, lowActual, highActual,
-                      openPredicted, closePredicted, lowPredicted, highPredicted)
-    #printPositions(positions)
+    # for i in range(len(openPredicted) - 1):
+    #     # Decide on whether to buy or sell based on difference between current close and next prediction high/low
+    #     currentClose = closeActual[i]
+    #     #if (i >= len(openActual) - 1): break
+    #     tomorrowHighPrediction = highPredicted[i + 1]
+    #     tomorrowLowPrediction = lowPredicted[i + 1]
+    #     position = ''
+    #     if(tomorrowHighPrediction - currentClose > currentClose - tomorrowLowPrediction):
+    #         position = 'BUY'
+    #     else: position = 'SELL'
+    #     positions.append(position)
+    # evaluatePositions(positions, openActual, closeActual, lowActual, highActual,
+    #                   openPredicted, closePredicted, lowPredicted, highPredicted)
+    # #printPositions(positions)
 
 def evaluatePositions(positions, openActual, closeActual, lowActual, highActual,
                       openPredicted, closePredicted, lowPredicted, highPredicted):

@@ -63,7 +63,7 @@ def predict_next(name, length, model = None):
     ]
 
     # Print model
-    print_result(data, Y_train, next1, next2, next3, numbers_mse)
+    # print_result(data, Y_train, next1, next2, next3, numbers_mse)
 
     # Return the original data, ground truth values, and predictions
     return data, Y_train, next1, next2, next3, numbers_mse
