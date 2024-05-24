@@ -5,6 +5,10 @@ import createTable
 import ATR
 from position import Position
 import generateWinRate
+import generateTable
+
+def getInitialAccount():
+    return 25000        # Inital account value
 
 def takePositions():
     name = 'EURUSD_2023-2024.csv'                                               # File to grab data form csv format
@@ -27,7 +31,8 @@ def takePositions():
     inTrade = False
    
     # Account information
-    totalAccount = 25000                    # Start with $25,000 initially
+    
+    totalAccount = getInitialAccount()
     slRisk = 0.01                           # Risk a max of 1% per trade
     rr = 1.3
     # Iterate through every wick
@@ -73,20 +78,21 @@ def takePositions():
         elif next3_C[i] > next2_C[i] and next2_C[i] > next1_C[i]:
             # Uptrend confirmed
             # Set lotSize
-            myP.enterTrade(actual_O[i], 'BUY', lotSize, SL)
+            myP.enterTrade(actual_O[i], 'BUY', lotSize, SL, rr)
             inTrade = True
 
         # Downtrend if the next three candles close lower than previous
         elif next3_C[i] < next2_C[i] and next2_C[i] < next1_C[i]:
             # Downtrend confirmed
             # Set lotSize
-            myP.enterTrade(actual_O[i], 'SELL', lotSize, SL)
+            myP.enterTrade(actual_O[i], 'SELL', lotSize, SL, rr)
             inTrade = True
         else:
             # For now, dont enter a trade
             continue
     print("Ending Account: " +(str)(totalAccount))
     generateWinRate.winRate(positions)
+    
     return positions
 
 

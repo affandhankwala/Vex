@@ -9,6 +9,7 @@ class Position:
         self.currentPrice = 0
         self.lot = 0
         self.result = ''
+        self.rr = 1
     
     # Getters
     def getDirection(self):
@@ -19,6 +20,9 @@ class Position:
     
     def getTP(self):
         return self.TP
+    
+    def getLot(self):
+        return self.lot
 
     def getPosValue(self):
         # Value is equal to lotsize * 10 * SL pips
@@ -26,6 +30,24 @@ class Position:
     
     def getResult(self):
         return self.result
+    
+    def getrr(self):
+        return self.rr
+    
+    def getEntryPrice(self):
+        return self.entryPrice
+    
+    def getSLPrice(self):
+        if self.direction == 'BUY':
+            return self.entryPrice - self.SL
+        else:
+            return self.entryPrice + self.SL
+        
+    def getTPPrice(self):
+        if self.direction == 'BUY':
+            return self.entryPrice + self.SL * self.rr
+        else:
+            return self.entryPrice - self.SL * self.rr
     
     # Setters
     def setDirection (self, direction):
@@ -44,12 +66,13 @@ class Position:
         self.lot = lot
 
     # Methods
-    def enterTrade(self, price, direction, lotSize, SL):
+    def enterTrade(self, price, direction, lotSize, SL, rr):
         self.entryPrice = price
         self.currentPrice = price
         self.direction = direction
         self.lot = lotSize
         self.SL = SL
+        self.rr = rr
 
     def updatePrice(self, price):
         self.currentPrice = price
