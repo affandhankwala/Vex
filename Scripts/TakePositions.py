@@ -29,7 +29,7 @@ def takePositions():
     # Account information
     totalAccount = 25000                    # Start with $25,000 initially
     slRisk = 0.01                           # Risk a max of 1% per trade
-    rr = 1
+    rr = 1.3
     # Iterate through every wick
     for i in range(len(actual_O) - 3):
 
