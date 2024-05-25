@@ -8,8 +8,8 @@ import generateTable
 def getInitialAccount():
     return 25000        # Inital account value
 
-def takePositions():
-    name = 'EURUSD_2023-2024.csv'                                               # File to grab data form csv format
+def takePositions(name, rr):
+    #name = 'EURUSD_2023-2024.csv'                                               # File to grab data form csv format
 
 
     actual_O, ytrain_O, next1_O, next2_O, next3_O, mse_O = PredictNext.predict_next(name, 'open')
@@ -32,7 +32,6 @@ def takePositions():
     
     totalAccount = getInitialAccount()
     slRisk = 0.01                           # Risk a max of 1% per trade
-    rr = 1.3
     # Iterate through every wick
     for i in range(len(actual_O) - 3):
 
@@ -88,11 +87,9 @@ def takePositions():
         else:
             # For now, dont enter a trade
             continue
-    print("Ending Account: " +(str)(totalAccount))
+    print("Ending Account: " +(str)(round(totalAccount, 2)))
 
     generateTable.makeTable(name, positions, 
                   generateWinRate.metrics(positions, getInitialAccount()))
     
-    return round(getInitialAccount() - totalAccount, 2)
-
-takePositions()
+    return round(totalAccount - getInitialAccount(), 2)
