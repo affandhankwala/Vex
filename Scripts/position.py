@@ -74,7 +74,7 @@ class Position:
         self.SL = round(SL, 4)
         self.rr = rr
 
-        # Value is equal to lotsize * 10 * SL pips
+        # Loss Value is equal to lotsize * 10 * SL pips
         self.posValue = self.lot * 10 * self.SL * 1000   
 
     def updatePrice(self, price):
@@ -88,7 +88,7 @@ class Position:
             return high - self.entryPrice >= self.SL
     
     def hitTP(self, low, high, rr):
-        # Determine if TP Hit within the dayu
+        # Determine if TP Hit within the day
         # RR 1:1
         if self.direction == 'BUY':
             return high - self.entryPrice >= self.SL * rr
@@ -100,6 +100,9 @@ class Position:
 
     def invertValue(self):
         self.posValue = self.posValue * -1
+    
+    def profitValue(self):
+        self.posValue = self.posValue * self.rr
     
 
 

@@ -57,6 +57,7 @@ def takePositions(name, rr):
                 myP.setResult('LOSS')
 
             elif myP.hitTP(actual_L[i], actual_H[i], rr):
+                myP.profitValue()
                 myP.setResult('WIN')
             
             else: 
