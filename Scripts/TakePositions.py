@@ -1,7 +1,5 @@
 import numpy as np
-import math
 import PredictNext
-import createTable
 import ATR
 from position import Position
 import generateWinRate
