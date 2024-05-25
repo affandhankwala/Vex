@@ -13,9 +13,9 @@ def metrics(positions, account):
         minimum = min(account, minimum)
 
     # Calculate metrics
-    winRate = totalWin / total
-    dollarDelta = account - initialAccount
-    percentDelta = account / initialAccount - 1
-    maxDrawdown = minimum / initialAccount - 1
+    winRate = round(totalWin / total * 100, 2)
+    dollarDelta = round(account - initialAccount, 2)
+    percentDelta = round((account / initialAccount - 1) * 100, 2)
+    maxDrawdown = round((minimum / initialAccount - 1) * 100, 2)
     
     return [initialAccount, total, winRate, dollarDelta, percentDelta, maxDrawdown]

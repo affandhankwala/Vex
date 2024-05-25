@@ -17,16 +17,16 @@ class Position:
         return self.direction
     
     def getSL(self):
-        return self.SL
+        return round(self.SL, 4)
     
     def getTP(self):
-        return self.TP
+        return round(self.TP, 4)
     
     def getLot(self):
-        return self.lot
+        return round(self.lot, 4)
 
     def getPosValue(self):
-        return self.posValue
+        return round(self.posValue, 4)
     
     def getResult(self):
         return self.result
@@ -35,50 +35,50 @@ class Position:
         return self.rr
     
     def getEntryPrice(self):
-        return self.entryPrice
+        return round(self.entryPrice, 4)
     
     def getSLPrice(self):
         if self.direction == 'BUY':
-            return self.entryPrice - self.SL
+            return round(self.entryPrice - self.SL, 4)
         else:
-            return self.entryPrice + self.SL
+            return round(self.entryPrice + self.SL, 4)
         
     def getTPPrice(self):
         if self.direction == 'BUY':
-            return self.entryPrice + self.SL * self.rr
+            return round(self.entryPrice + self.SL * self.rr, 4)
         else:
-            return self.entryPrice - self.SL * self.rr
+            return round(self.entryPrice - self.SL * self.rr, 4)
     
     # Setters
     def setDirection (self, direction):
         self.direction = direction
     
     def setSL (self, SL):
-        self.SL = SL
+        self.SL = round(SL, 2)
 
     def setTP (self, TP):
-        self.TP = TP
+        self.TP = round(TP, 2)
 
     def setCurrentPrice(self, price):
-        self.currentPrice = price
+        self.currentPrice = round(price, 4)
 
     def setLot(self, lot):
-        self.lot = lot
+        self.lot = round(lot, 4)
 
     # Methods
-    def enterTrade(self, price, direction, lotSize, SL, rr):
-        self.entryPrice = price
-        self.currentPrice = price
+    def enterTrade(self, price, direction, lot, SL, rr):
+        self.entryPrice = round(price, 4)
+        self.currentPrice = round(price, 4)
         self.direction = direction
-        self.lot = lotSize
-        self.SL = SL
+        self.lot = round(lot, 4)
+        self.SL = round(SL, 4)
         self.rr = rr
 
         # Value is equal to lotsize * 10 * SL pips
         self.posValue = self.lot * 10 * self.SL * 1000   
 
     def updatePrice(self, price):
-        self.currentPrice = price
+        self.currentPrice = round(price, 4)
 
     def hitSL(self, low, high):
         # Determine if SL hit in trade

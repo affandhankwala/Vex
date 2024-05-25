@@ -96,3 +96,5 @@ def takePositions():
                   generateWinRate.metrics(positions, getInitialAccount()))
     
     return positions
+
+takePositions()
