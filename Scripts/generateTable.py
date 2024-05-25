@@ -37,7 +37,7 @@ def generateArray(name, positions, metrics):
     
     # Write to output file
     script_path = os.path.dirname(os.path.abspath(__file__))
-    relativePath = 'Output/table.txt'
+    relativePath = 'Files/Outputs/'+name+'.txt'
     fileName = os.path.join(script_path, relativePath)
     writeToFile(fileName, name, table, metrics)
 

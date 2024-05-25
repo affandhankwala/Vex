@@ -95,6 +95,6 @@ def takePositions():
     generateTable.makeTable(name, positions, 
                   generateWinRate.metrics(positions, getInitialAccount()))
     
-    return positions
+    return round(getInitialAccount() - totalAccount, 2)
 
 takePositions()
