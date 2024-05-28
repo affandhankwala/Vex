@@ -31,5 +31,5 @@ def testOneRR(name):
     rr = 0.1
     TakePositions.takePositions(name, rr)
     
-plotRR('AUDUSD_2023-2024.csv')
+plotRR('EURUSD_2023-2024.csv')
 #testOneRR('AUDUSD_2023-2024.csv')
