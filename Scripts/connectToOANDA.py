@@ -24,18 +24,19 @@ if response.status_code == 200:
     candles_data = response.json()
     # Process candles data as needed
     candles = candles_data['candles']
-    relativePath = f'Files\CandleData\{granuality}\{pair}_{granuality}_candles.csv'
-    fileName = os.path.join(os.path.dirname(os.path.abspath(__file__)), relativePath)
-    if not os.path.exists(fileName):
-        os.makedirs(fileName)
+    fileName = f'{pair}_{granuality}_candles.csv'
+    directoryPath = f'Files\CandleData\{granuality}'
+    filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), directoryPath, fileName)
+    if not os.path.exists(directoryPath):
+        os.makedirs(directoryPath)
             
-    with open(fileName, mode='w', newline='') as file:
+    with open(filePath, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(['time', 'open', 'high', 'low', 'close', 'volume'])
         for candle in candles:
             writer.writerow([candle['time'], candle['mid']['o'], candle['mid']['h'], candle['mid']['l'], candle['mid']['c'], candle['volume']])
     
-    print(f"Candles data saved to {fileName}")
+    print(f"Candles data saved to {filePath}")
 else:
     # Handle unsuccessful request
     print("Error:", response.status_code, response.text)
