@@ -4,7 +4,7 @@ import os
 def returnWickData(fileName):
     script_path = os.path.dirname(os.path.abspath(__file__))
 
-    relative_path = 'Files/' + fileName
+    relative_path = 'Files\\CandleData\\' + fileName
 
     file_path = os.path.join(script_path, relative_path)
 

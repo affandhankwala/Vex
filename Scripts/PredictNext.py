@@ -92,4 +92,4 @@ def get_accuracy(actual, expected):
     # Return means squared error difference from actual and expected
     return mean_squared_error (actual, expected) 
 
-predict_next('EURUSD_2023-2024.csv', 'open')
+#predict_next('EURUSD_2023-2024.csv', 'open')

@@ -94,3 +94,5 @@ def takePositions(name, rr):
                   generateWinRate.metrics(positions, getInitialAccount()))
     
     return round(totalAccount - getInitialAccount(), 2)
+
+takePositions("EURUSD_H1_candles.csv", 1.4)

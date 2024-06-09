@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import TakePositions
-def plotRR(name):
+import connectToOANDA
+def plotRR(name, granularity):
     # Plot the gain versus rr per different rr
     # Plot from 0.4 - 3 in 0.2 increment
     graph = [None for _ in range(29)]
@@ -18,11 +19,12 @@ def plotRR(name):
         if graph[i] > bestGain:
             bestGain = graph[i]
             rr = i
-    print("Most Gain at: "+(str)(rr * 0.1 + 0.1)+" with gain of "+(str)(bestGain))
+    print("Granularity: "+granularity+"; Most Gain at: "+(str)(rr * 0.1 + 0.1)+" with gain of "+(str)(bestGain))
 
     plt.plot(graph, label = "Gain")
     plt.xlabel("RR")
     plt.ylabel("Gain")
+    plt.title(granularity)
     plt.grid(True)
     plt.legend()
     plt.show()
@@ -31,5 +33,11 @@ def testOneRR(name):
     rr = 0.1
     TakePositions.takePositions(name, rr)
     
-plotRR('EURUSD_2023-2024.csv')
-#testOneRR('AUDUSD_2023-2024.csv')
+# pair = 'EURUSD'
+# granularity = 'M1'
+# name = f'{pair}_{granularity}_candles.csv'
+# count = 500
+# connectToOANDA.download_data(pair, granularity, count)
+
+# plotRR(name, granularity)
+# #testOneRR('AUDUSD_2023-2024.csv')
