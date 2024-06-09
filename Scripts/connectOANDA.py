@@ -1,7 +1,6 @@
 import oandapyV20
 import oandapyV20.endpoints.accounts as accounts
 import oandapyV20.endpoints.pricing as pricing
-#from oandapyV20.contrib.requests import MarketInstrumentCandlesRequest
 import requests
 import pandas as pd
 import os
@@ -58,7 +57,7 @@ def printPairPrice(response):
 def convertCandleDataToCSV(account_id, client, api_key, pair):
     granuality = "H1"
     params = {
-        "granularity": granuality,             # Time frame of candle
+        "granularity": granuality,             # Time frame of candle TODO: D works and prints out the EUR_USD_D.csv but Permission denied at EUR_USD_H1.csv
         "count": 500,
     }
 
