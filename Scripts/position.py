@@ -2,6 +2,7 @@ import math
 
 class Position:
     def __init__ (self):
+        self.pair = ''
         self.direction = ''
         self.SL = 0
         self.TP = 0
@@ -13,6 +14,9 @@ class Position:
         self.posValue = 0
     
     # Getters
+    def getPair(self):
+        return self.pair
+    
     def getDirection(self):
         return self.direction
     
@@ -23,7 +27,7 @@ class Position:
         return round(self.TP, 4)
     
     def getLot(self):
-        return round(self.lot, 4)
+        return round(self.lot)
 
     def getPosValue(self):
         return round(self.posValue, 4)
@@ -66,7 +70,8 @@ class Position:
         self.lot = round(lot, 4)
 
     # Methods
-    def enterTrade(self, price, direction, lot, SL, rr):
+    def enterTrade(self, pair, price, direction, lot, SL, rr):
+        self.pair = pair
         self.entryPrice = round(price, 4)
         self.currentPrice = round(price, 4)
         self.direction = direction

@@ -4,6 +4,7 @@ import ATR
 from position import Position
 import generateWinRate
 import generateTable
+#from connectToOANDA import create_order
 
 def getInitialAccount():
     return 25000        # Inital account value
@@ -76,14 +77,16 @@ def takePositions(name, rr):
         elif next3_C[i] > next2_C[i] and next2_C[i] > next1_C[i]:
             # Uptrend confirmed
             # Set lotSize
-            myP.enterTrade(actual_O[i], 'BUY', lotSize, SL, rr)
+            myP.enterTrade(pair, actual_O[i], 'BUY', lotSize, SL, rr)
+           # create_order(myP)
             inTrade = True
 
         # Downtrend if the next three candles close lower than previous
         elif next3_C[i] < next2_C[i] and next2_C[i] < next1_C[i]:
             # Downtrend confirmed
             # Set lotSize
-            myP.enterTrade(actual_O[i], 'SELL', lotSize, SL, rr)
+            myP.enterTrade(pair, actual_O[i], 'SELL', lotSize, SL, rr)
+           # create_order(myP)
             inTrade = True
         else:
             # For now, dont enter a trade
@@ -94,5 +97,5 @@ def takePositions(name, rr):
                   generateWinRate.metrics(positions, getInitialAccount()))
     
     return round(totalAccount - getInitialAccount(), 2)
-
-takePositions("EURUSD_H1_candles.csv", 1.4)
+pair = "EURUSD"
+takePositions("%s_M5_candles.csv" %(pair), 1.4)
