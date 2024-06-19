@@ -3,27 +3,24 @@ import os
 import csv
 from position import Position
 import time
+from typing import List, Dict, Tuple, Callable
 
-account_id = "101-001-29192683-001"
-base_url = 'https://api-fxpractice.oanda.com/v3/accounts/'
-api_key = "3296284c895481ff108b05e4946e96e3-3258b5cd4be74fdabadead67a4a77f37"
-eur_usd_url = "https://api-fxpractice.oanda.com/v3/instruments/EUR_USD/candles"
-order_url = f'{base_url}{account_id}/orders'
-open_pos_url = f'{base_url}{account_id}/openPositions'
+headers = {}
+account_id = ""
+# Set the header dictionary
+def set_credentials(api_key: str, a_id: str) -> None:
+    headers["Authorization"] = f"Bearer {api_key}"
+    account_id = a_id
 
-headers = {
-    "Authorization": f"Bearer {api_key}",
-}
-
-
-def download_data(pair, granularity, count):
+# Downloads the requested trade pair and granularity data 
+# Returns name of file is success or empty if not
+def download_data(pair: str, granularity: str, count: int, pair_url: str) -> str:
     params = {
-        "granularity": granularity,  # Hourly timeframe
-        "count": count,          # Number of candles to retrieve
+        "granularity": granularity,  
+        "count": count
     }
-
     # Send HTTP GET request to API endpoint
-    response = requests.get(eur_usd_url, headers=headers, params=params)
+    response = requests.get(pair_url, headers=headers, params=params)
 
     # Check if request was successful (status code 200)
     if response.status_code == 200:
@@ -31,7 +28,7 @@ def download_data(pair, granularity, count):
         candles_data = response.json()
         # Process candles data as needed
         candles = candles_data['candles']
-        fileName = f'{pair}_{granularity}_candles.csv'
+        fileName = f'{pair}_{granularity}_{count}_candles.csv'
         directoryPath = 'Files\\CandleData'
         filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), directoryPath, fileName)
         if not os.path.exists(directoryPath):
@@ -44,26 +41,35 @@ def download_data(pair, granularity, count):
                 writer.writerow([candle['time'], candle['mid']['o'], candle['mid']['h'], candle['mid']['l'], candle['mid']['c'], candle['volume']])
         
         print(f"Candles data saved to {filePath}")
+        return fileName
     else:
         # Handle unsuccessful request
         print("Error:", response.status_code, response.text)
+        return ""
 
+def get_account_value(account_url: str) -> float:
+    response = requests.get(account_url, headers=headers)
+    if response.status_code == 200:
+        return float(response.json()['account']['balance'])
+    else: 
+        print(f"Error fetching account info: {response.status_code} - {response.text}")
 
+def get_bid_ask(pair: str, pair_price_url: str) -> Tuple:
+    response = requests.get(pair_price_url, headers=headers)
+    if response.status_code == 200:
+        data = response.json()
+        prices = data['prices'][0]
+        bid_price = prices['bids'][0]['price']
+        ask_price = prices['asks'][0]['price']
+        print(f"Bid Price: {bid_price}")
+        print(f"Ask Price: {ask_price}")
+        
+    else:
+        # Handle error
+        print(f"Error: {response.status_code}, {response.text}")
+    return bid_price, ask_price
 
-        # update_pos(...):
-        #   pos.entryPrice = update
-        #   pos.SL = SL +- spread
-        #   pos.TP = TP +- spread
-        #   update other field
-        #   Listen()
-        #
-        # Listen():
-        #   while true:
-        #       if trade.finish   
-        #           update pos with result
-        #           get last 500 wicks and repeat predictions
-
-def get_open_pos():
+def get_open_pos(open_pos_url: str) -> List:
     # Update prices here
     response = requests.get(open_pos_url, headers=headers)
     if response.status_code == 200:
@@ -76,43 +82,42 @@ def get_open_pos():
         print(response.json())
         return []
         
-def monitor_position():         # TODO: fIX THIS to only show when a new position is closed. ? ??
-    prev_pos = get_open_pos()
-    while True:
-        current_pos = get_open_pos()
-        # Compare current positions with previous positions
-        closed_positions = [pos for pos in prev_pos if pos not in current_pos]
-
-        if closed_positions:
-            for pos in closed_positions:
-                instrument = pos['instrument']
-                units = pos['long']['units'] if pos['long']['units'] != '0' else pos['short']['units']
-                message = f'Position closed for {instrument} with {units} units.'
-                print(message)
-                
-
-        prev_pos = current_pos
-
-        # Wait for a specified time before checking again
-        time.sleep(2)  # Check every 60 seconds
-
+def is_trade_open (open_pos_url: str, trade_id: str):
+    response = requests.get(open_pos_url, headers=headers)
+    if response.status_code == 200:
+        open_trades = response.json()['trades']
+        for trade in open_trades:
+            if trade['id'] == trade_id:
+                return True
+        return False
+    else:
+        print(f"Failed to retrieve open trades: {response.status_code}")
+        print(response.text)
+        return False
+    
+def monitor_position(open_pos_url: str, trade_id: str):         
+    while is_trade_open(open_pos_url, trade_id):
+        print(f'{trade_id} still open')
+        time.sleep(3) # seconds
+    print(f'{trade_id} closed')
 
 
-def create_order(position):
+
+
+def create_order(trade: Dict, order_url: str, position: Dict) -> FloatingPointError:
     # Create the order based on the values of the position
     # Update position object with real entry/sl/tp positions
     data = {
         "order": {
-            "instrument": position.getPair(),
-            #"units": #TODO: IDENTIFY HOW MANY UNITS IN LOT ,
+            "instrument": trade["pair"],
             "type": "MARKET",
             "positionFill": "DEFAULT",
-            "units": (str)(position.getLot()),
+            "units": position["units"],
             "takeProfitOnFill": {
-                "price": (str)(position.getTPPrice())
+                "price": position["tp_price"],
             },
             "stopLossOnFill": {
-                "price": (str)(position.getSLPrice())
+                "price": position["sl_price"],
             }
             
         }
@@ -120,16 +125,24 @@ def create_order(position):
     response = requests.post(order_url, headers = headers, json=data)
     if response.status_code == 201:
         print("Trade placed successfully")
-        print(response.json())
-        # TODO: ALTER POSITION TO REFLECT NEW VALUES
-        monitor_position()
-        # update_pos(account.tradeconfirmation)
-
+        order_response = response.json()
+         # Extract the trade ID from the response
+        trade_id = None
+        
+        if 'orderFillTransaction' in order_response:
+            # For immediate fills (market orders)
+            trade_id = order_response['orderFillTransaction']['id']        
+        if trade_id:
+            print(f"Trade ID: {trade_id}")
+            return trade_id
+        else:
+            print("Failed to extract trade ID from the response.")
     else:
         print ("Err: {response.status_code}")
         print(response.json())
+        return False
 
 
-myP = Position()
-myP.enterTrade("EUR_USD", 1.0766, 'BUY', 10000, 0.0020, 1.5)
-create_order(myP)
+# myP = Position()
+# myP.enterTrade("EUR_USD", 1.0766, 'BUY', 10000, 0.0020, 1.5)
+# create_order(myP)
