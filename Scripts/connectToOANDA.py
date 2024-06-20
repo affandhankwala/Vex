@@ -2,8 +2,9 @@ import requests
 import os
 import csv
 from position import Position
-import time
+import time as t
 from typing import List, Dict, Tuple, Callable
+from datetime import datetime, time
 
 headers = {}
 account_id = ""
@@ -95,11 +96,12 @@ def is_trade_open (open_pos_url: str, trade_id: str):
         print(response.text)
         return False
     
-def monitor_position(open_pos_url: str, trade_id: str):         
+def monitor_position(open_pos_url: str, trade_id: str) -> bool:         
     while is_trade_open(open_pos_url, trade_id):
         print(f'{trade_id} still open')
-        time.sleep(3) # seconds
+        t.sleep(3) # seconds
     print(f'{trade_id} closed')
+    return True 
 
 
 
@@ -107,13 +109,15 @@ def monitor_position(open_pos_url: str, trade_id: str):
 def create_order(trade: Dict, order_url: str, position: Dict) -> FloatingPointError:
     # Create the order based on the values of the position
     # Update position object with real entry/sl/tp positions
+
     data = {
         "order": {
             "instrument": trade["pair"],
             "type": "MARKET",
+            "timeInForce": "FOK",
             "positionFill": "DEFAULT",
             "units": position["units"],
-            "takeProfitOnFill": {
+            "takeProfitOnFill": { 
                 "price": position["tp_price"],
             },
             "stopLossOnFill": {
@@ -142,7 +146,29 @@ def create_order(trade: Dict, order_url: str, position: Dict) -> FloatingPointEr
         print(response.json())
         return False
 
+def get_trade_ids(open_pos_url: str) -> List:
+    response = requests.get(open_pos_url, headers=headers)
+    if response.status_code == 200:
+        open_trades = response.json()['trades']
+        trades = []
+        for trade in open_trades:
+            trades.append(trade['id'])
+        return trades
+    else:
+        print(f"Failed to retrieve open trades: {response.status_code}")
+        print(response.text)
+        return None
+    
+#
+# Time related
+#
 
-# myP = Position()
-# myP.enterTrade("EUR_USD", 1.0766, 'BUY', 10000, 0.0020, 1.5)
-# create_order(myP)
+# Return the best pair to trade based on time
+def get_best_pair () -> str:
+    current_time = datetime.now().time()
+    if time(0, 0) <= current_time <= time(2, 0):
+        return "EUR_JPY"
+    elif time(2, 0) <= current_time <= time(15, 0):
+        return "EUR_USD"
+    elif time(15, 0) <= current_time <= time(23, 0):
+        return "EUR_JPY"
