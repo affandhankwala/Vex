@@ -30,43 +30,52 @@ api = {
     "pair_price_url": ""
    
 }
-# Update dictionary with order and open_pos urls
-api["account_url"] = f'{api["base_url"]}/accounts'
-api["my_account_url"] = f'{api["account_url"]}/{api["account_id"]}'
-api["order_url"] =  f'{api["my_account_url"]}/orders'
-api["open_pos_url"] = f'{api["my_account_url"]}/openTrades'
-api["pair_url"] = f'{api["base_url"]}/instruments/{trade['pair']}/candles'
-api["pair_price_url"] = f'{api["my_account_url"]}/pricing?instruments={trade['pair']}'
-api["open_positions_url"] = f'{api["my_account_url"]}/openPositions'
+def update_api():
+    # Update dictionary with order and open_pos urls
+    api["account_url"] = f'{api["base_url"]}/accounts'
+    api["my_account_url"] = f'{api["account_url"]}/{api["account_id"]}'
+    api["order_url"] =  f'{api["my_account_url"]}/orders'
+    api["open_pos_url"] = f'{api["my_account_url"]}/openTrades'
+    api["pair_url"] = f'{api["base_url"]}/instruments/{trade['pair']}/candles'
+    api["pair_price_url"] = f'{api["my_account_url"]}/pricing?instruments={trade['pair']}'
+    api["open_positions_url"] = f'{api["my_account_url"]}/openPositions'
 
-
+update_api()
 
 # Set Headers
 makeTrade.set_broker_headers(api)
 
-trade["account_value"] = makeTrade.get_account_value(api)
-
-# Retrieve Candle Data and save to file
-file_name = makeTrade.download_candles_csv(trade, api)
-
-# Gather predictions
-predictions = makeTrade.make_predictions(file_name)
-
-# Predict best rr from data
-trade["rr"] = 1.4
-#trade["rr"] = makeTrade.best_rr(file_name, trade, False, predictions)
-
-# Get current ATR of the market
-trade["atr"] = makeTrade.get_current_atr(predictions, trade["candle_count"] - 1, 15)
-
-# Retrieve current bid, ask prices
-bid, ask = makeTrade.get_spread(trade, api)
-
 # Find out how to check if any positions are currently open
 current_trade = makeTrade.get_open_trades(api)
+
 if current_trade:
     connectToOANDA.monitor_position(api["open_pos_url"], current_trade)
-else: 
+
+while True:
+    # Check time
+    trade["pair"] = connectToOANDA.get_best_pair()
+
+    # Update api 
+    update_api()
+
+    # Retrieve Candle Data and save to file
+    file_name = makeTrade.download_candles_csv(trade, api)
+
+    trade["account_value"] = makeTrade.get_account_value(api)
+
+    # Gather predictions
+    predictions = makeTrade.make_predictions(file_name)
+
+    # Predict best rr from data
+    trade["rr"] = 1.4
+    #trade["rr"] = makeTrade.best_rr(file_name, trade, False, predictions)
+
+    # Get current ATR of the market
+    trade["atr"] = makeTrade.get_current_atr(predictions, trade["candle_count"] - 1, 15)
+
+    # Retrieve current bid, ask prices
+    bid, ask = makeTrade.get_spread(trade, api)
+
     new_trade = makeTrade.make_trade(predictions, trade, api, bid, ask)
 
-# Check time
+

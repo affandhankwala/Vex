@@ -171,4 +171,4 @@ def get_best_pair () -> str:
     elif time(2, 0) <= current_time <= time(15, 0):
         return "EUR_USD"
     elif time(15, 0) <= current_time <= time(23, 0):
-        return "EUR_JPY"
+        return "AUD_JPY"

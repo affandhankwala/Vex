@@ -103,13 +103,16 @@ def get_prices(direction: str, ask_price: float, bid_price: float, true_sl: floa
 # TODO: MAKE SURE THIS CAN HANDLE CONVERSION RATIOS
 def get_units(true_sl: int, risk: float, account_value: float, leverage: float) -> float:
     per_pip = (account_value * risk) / true_sl
-    if (per_pip * 10000 )< (leverage * account_value):
-        print(f'{per_pip * 10000} standard lots')
+    if (per_pip * 100000 )< (leverage * account_value):
+        print(f'{per_pip} standard lots')
         return per_pip * 10000
-    elif (per_pip * 1000) < (leverage * account_value):
-        print(f'{per_pip * 1000} mini lots')
+    elif (per_pip * 10000) < (leverage * account_value):
+        print(f'{per_pip} mini lots')
         return per_pip * 1000
-    elif (per_pip * 100) < (leverage * account_value):
-        print(f'{per_pip * 100} micro lots')
+    elif (per_pip * 1000) < (leverage * account_value):
+        print(f'{per_pip} micro lots')
         return per_pip * 100
     else: return 0
+
+def check_JPY (pair: str) -> bool:
+    return pair[-3:] == 'JPY'

@@ -76,13 +76,21 @@ def make_trade(predictions: List, trade: Dict, api: Dict, bid: float, ask: float
         true_sl = TakePositions.get_true_sl(trade["atr"], trade["sl_to_atr_ratio"])
         sl_price, tp_price = TakePositions.get_prices(direction, ask, bid, true_sl, trade["rr"])
         # Calculate the lotsize required
-        units = TakePositions.get_units(true_sl * 1000, trade["risk"], trade["account_value"], trade["leverage"])
+        is_JPY = TakePositions.check_JPY(trade["pair"])
+        if is_JPY: 
+            multiplier = 100
+            precision = 2
+        else: 
+            multiplier = 10000
+            precision = 4
+        units = TakePositions.get_units(true_sl * multiplier, trade["risk"], trade["account_value"], trade["leverage"])
         buy = 1
         if direction == "SELL": buy = -1 
         # Send off to create order
+    
         position = {
-            "sl_price": (str)(round(sl_price, 4)),
-            "tp_price": (str)(round(tp_price, 4)),
+            "sl_price": (str)(round(sl_price, precision)),
+            "tp_price": (str)(round(tp_price, precision)),
             "units": (str)(round(units) * buy)
         }
 
